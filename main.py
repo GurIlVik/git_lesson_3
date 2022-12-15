@@ -3,16 +3,11 @@ from datetime import timedelta
 from tkinter import *
 from functools import partial
 
-def get_the_number_of_the_day_of_the_week(show):
-    result = ''
-    for i in show:
-        if i >= '0' and i <='9':
-            result += i
-        elif i == '-':
-            pass
-        else:
-            break
-    return result
+def date_users(titl1, titl2, titl3):
+    year = int(titl1.get())
+    month = int(titl2.get())
+    day = int(titl3.get())
+    return dt(year, month, day, 0, 0, 0)
 
 def date_now(windows):
     dt_now = dt.now().strftime("%d/%m/%y %H:%M:%S")
@@ -47,15 +42,9 @@ def weekday_l(num=1):
     return list_day
   
 def weekday(titl1, titl2, titl3, windows):
-    year = int(titl1.get())
-    month = int(titl2.get())
-    day = int(titl3.get())
     dict_weekday = weekday_l(num=1)
-    date_user = dt(year, month, day, 0, 0, 0)
-    show = str(date_user - date_13_dec())
-    num_d = get_the_number_of_the_day_of_the_week(show)
-    num_d = int(num_d)
-    num_d = num_d % 7
+    show = date_users(titl1, titl2, titl3) - date_13_dec()
+    num_d = show.days % 7
     lb_weekday = Label(windows, text= f'День недели указанного числа: {dict_weekday[num_d]}')
     lb_weekday.grid(column=0, columnspan=3, row= 20)
  
@@ -73,10 +62,8 @@ def the_cycle_of_obtaining_years(number_from_the_dictionary):
         if count_top >= count_bootom:
             for i in range(1, 30):
                 year_top += 1
-                # num_tech_year = dt(year_top, 1, 1)
                 delta = dt(year_top, 1, 1) - date_lesson
-                delta = delta.days
-                if delta % 7 == number_from_the_dictionary:
+                if delta.days % 7 == number_from_the_dictionary:
                     result.append(year_top)
                     count_top -= 1
                     break
@@ -85,9 +72,8 @@ def the_cycle_of_obtaining_years(number_from_the_dictionary):
         else:
             for i in range(1, 30):
                 year_bootom -= 1
-                delta = date_lesson - dt(year_bootom, 1, 1)
-                delta = delta.days
-                if (delta + 2) % 7 == number_from_the_dictionary:
+                delta = dt(year_bootom, 1, 1) - date_lesson
+                if delta.days % 7 == number_from_the_dictionary:
                     result.append(year_bootom)
                     count_bootom -= 1
                     break
@@ -107,6 +93,31 @@ def year_weekday(week_list_show, windows):
     result = the_cycle_of_obtaining_years(number_from_the_dictionary)
     lb_weekday = Label(windows, text= f'Список лет начинающихся со {d}:{result}')
     lb_weekday.grid(column=0, columnspan=3, row= 21)
+    
+def year_birthday(titl1, titl2, titl3, windows):
+    dict_weekday = weekday_l(num=1)
+    number_days = date_users(titl1, titl2, titl3) - date_13_dec()
+    day_weekday = dict_weekday[(number_days.days) % 7]
+    lab_day_weekday = Label(windows, text=f'Вы родились в {day_weekday} - самый лучший день недели')
+    lab_day_weekday.grid(column=0, columnspan=3, row=23)
+    
+    list_year = []
+    year = int(titl1.get())
+    month = int(titl2.get())
+    day = int(titl3.get())
+    for i in range(1, 100):
+        year += 1
+        dt_user = dt(year, month, day, 0, 0, 0)
+        if dt_user < dt.now():
+            number_days_find = dt_user - date_13_dec()
+            if (number_days_find.days % 7) == (number_days.days % 7):
+                list_year.append(year)
+            else:
+                pass
+        else:
+            break
+    lab_day_weekday_years = Label(windows, text=f'тот же день недели и дата встерчаются в годах: {list_year}')
+    lab_day_weekday_years.grid(column=0, columnspan=3, row=24)       
     
 def label_batton(windows):
     lab_m1 = Label(windows, text = 'Укажите год:')
@@ -135,6 +146,9 @@ def label_batton(windows):
     button2 = Button(windows, text='при нажатии получите года начинающиеся с этого дня', 
                      command=partial(year_weekday, week_list_show, windows))
     button2.grid(column=0, columnspan=3, row= 11)
+    button3 = Button(windows, text='Что бы узнать в какие годы дни рождения приходились на тот же день недели введите данные сверху', height=2,
+                     command=partial(year_birthday, titl1, titl2, titl3, windows))
+    button3.grid(column=0, columnspan=3, row= 12)
 
 def start_prog():
     windows = Tk()
